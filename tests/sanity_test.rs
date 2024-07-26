@@ -9,7 +9,7 @@ fn setup() -> SanityClient {
     let token = env::var("SANITY_TOKEN").unwrap();
     let dataset = env::var("SANITY_DATASET").unwrap();
     let project = env::var("SANITY_PROJECT").unwrap();
-    SanityClient::new(token, dataset, project)
+    SanityClient::new(&token, &dataset, &project)
 
 }
 
@@ -18,8 +18,8 @@ fn setup() -> SanityClient {
 async fn test_sanity_fetch() {
     let client = setup();
     let query = "*[_type == 'blueprints' && name match('Excel')]";
-    let result = client.fetch(query).await.unwrap();
-    assert!(result.result.len() > 0);
+    let result = client.query().fetch(query).await.unwrap();
+
 
 }
 

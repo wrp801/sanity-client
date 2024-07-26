@@ -9,19 +9,16 @@ async fn main() {
     let token = std::env::var("SANITY_TOKEN").unwrap();
     let dataset = std::env::var("SANITY_DATASET").unwrap();
     let project = std::env::var("SANITY_PROJECT").unwrap();
-    let client = SanityClient::new(token, dataset, project);
+    let client = SanityClient::new(&token, &dataset, &project);
     let create_json = json!({
         "_type": "blueprints",
         "name": "TESTME",
         "description": "A TEST FOR RUST",
     });
-    let result = client
-        .body(&create_json)
-        .create()
-        .await
-        .unwrap();
 
-    println!("{:?}", result);
+    println!("JSON is {:?}", create_json)
+
+
 }
 
 
