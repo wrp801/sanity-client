@@ -241,13 +241,14 @@ impl QueryEndpoint {
         });
         let url = self.url.as_ref().expect("Mutate URL is not proplery set");
         let headers = self.headers.clone().expect("Headers are not properly set");
-        let res = self.client.post(url)
+        let results = self.client.post(url)
             .headers(headers)
             .json(&payload)
             .send()
+            .await?
+            .json::<QueryResult>()
             .await?;
-        let json: Value = res.json().await?;
 
-        Ok(json)
+        Ok(results)
     }
 }
