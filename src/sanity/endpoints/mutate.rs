@@ -99,7 +99,8 @@ impl<'a> MutateEndpoint<'a> {
             url: Some(Endpoint::Mutate.get_url(project, dataset)),
             headers: {
                 let mut headers = HeaderMap::new();
-                headers.insert("Authorization", HeaderValue::from_str(&token).unwrap());
+                let header_value = format!("Bearer {}", token);
+                headers.insert("Authorization", HeaderValue::from_str(&header_value).unwrap() );
                 headers.insert("Content-Type", HeaderValue::from_static("application/json"));
                 Some(headers)
             }

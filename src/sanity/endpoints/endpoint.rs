@@ -23,7 +23,7 @@ impl Endpoint {
             Endpoint::Query => {
                 let now = chrono::Utc::now();
                 let date_str = now.format("%Y-%m-%d").to_string();
-                format!("https://{}.api.sanity.io/{}/data/query/{}", project, date_str, dataset)
+                format!("https://{}.api.sanity.io/v{}/data/query/{}", project, date_str, dataset)
 
             }
         }
