@@ -25,14 +25,14 @@ pub struct QueryResult {
 }
 
 #[derive(Debug)]
-pub struct SanityClient<'a> {
-    token: &'a str,
-    dataset: &'a str, 
-    project: &'a str,
+pub struct SanityClient {
+    token: String,
+    dataset: String, 
+    project: String,
 }
 
-impl <'a> SanityClient<'a> {
-    pub fn new(token: &'a str, dataset: &'a str, project: &'a str) -> SanityClient<'a> {
+impl SanityClient {
+    pub fn new(token: String, dataset: String, project: String) -> SanityClient {
         let client = Client::new();
         SanityClient {
             token: token,

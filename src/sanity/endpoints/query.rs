@@ -2,11 +2,9 @@ extern crate reqwest;
 extern crate serde_json;
 
 use reqwest::header::{HeaderMap, HeaderValue};
-use serde_json::{Value, Map, json};
-use serde::Deserialize;
+use serde_json::json;
 use reqwest::Client;
 use log::{info, debug, error, warn};
-use chrono::Datelike;
 
 use crate::sanity::endpoints::endpoint::{Endpoint, QueryResult};
 use crate::sanity::errs::SanityError;
@@ -40,14 +38,16 @@ impl QueryEndpoint {
         }
     }
 
+    /// Return the results of a Sanity GROQ Query. If this fails it will return a QueryError or
+    /// ParseError with the reason for the failure.
+    ///
+    /// * `query`: The GROQ query to run against the Sanity API
     pub async fn fetch(&self, query: &str) -> Result<QueryResult, SanityError> {
         let payload = json!({
             "query": query
         });
         let url = self.url.clone().expect("Query URL is not proplery set");
         let headers = self.headers.clone().expect("Headers are not properly set");
-        println!("URL: {:?}", url);
-        println!("Headers: {:?}", headers);
 
         let results = self.client.post(url)
             .headers(headers)
@@ -58,8 +58,10 @@ impl QueryEndpoint {
 
         match results {
             Ok(response) => {
+                // If the response is not successful immediately return an error
                 if !response.status().is_success() {
-                    return Err(SanityError::QueryError(format!("Query failed with status: {:?} and reason: {:?}", response.status(), response.text().await.unwrap())));
+                    return Err(SanityError::QueryError(format!("Query failed with status: {:?} and reason: {:?}", response.status(), response.text().await.unwrap_or_else(|_| "Failed to read response text".to_string()))));
+
 
                 }
                 let json_result = response.json::<QueryResult>().await;
@@ -68,14 +70,14 @@ impl QueryEndpoint {
                         Ok(result)
                     },
                     Err(e) => {
-                        error!("Error parsing response: {:?}", e);
+                        eprintln!("Error parsing response: {:?}", e);
                         Err(SanityError::ParseError(e.to_string()))
                     }
                 }
 
             },
             Err(e) => {
-                error!("Error fetching data: {:?}", e);
+                eprintln!("Error fetching data: {:?}", e);
                 Err(SanityError::QueryError(e.to_string()))
             }
         }

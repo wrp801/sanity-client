@@ -1,7 +1,6 @@
 use sanity_client::sanity::client::SanityClient;
 use dotenv::dotenv;
 use std::env;
-use serde_json::json;
 
 
 #[tokio::main]
@@ -11,7 +10,8 @@ async fn main() {
     let dataset = std::env::var("SANITY_DATASET").unwrap();
     let project = std::env::var("SANITY_PROJECT").unwrap();
     let client = SanityClient::new(&token, &dataset, &project);
-    let query = "*[_type == 'blueprints' && name match('Excel')]";
+    // let query = "*[_type == 'blueprints' && name match('Excel')]";
+    let query = "*[_type == 'blueprints' && missing_the_closing_bracket";
     let result = client
         .query()
         .fetch(query)
@@ -19,8 +19,8 @@ async fn main() {
 
 
     match result {
-        Ok(data) => {
-            println!("{:?}", data);
+        Ok(_) => {
+            println!("Successfully executed query");
         }
         Err(e) => {
             println!("{:?}", e);

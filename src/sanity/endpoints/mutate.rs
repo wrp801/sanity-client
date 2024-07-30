@@ -107,7 +107,7 @@ impl<'a> MutateEndpoint<'a> {
         }
     }
 
-    pub async fn create(&self, doc: Value) -> Result<Value, reqwest::Error> {
+    pub async fn create(&self, doc: Value) -> Result<QueryResult, SanityError> {
         let payload = json!({
             "mutations": [
                 {
@@ -121,9 +121,28 @@ impl<'a> MutateEndpoint<'a> {
             .headers(headers)
             .json(&payload)
             .send()
-            .await?;
-        let json: Value = res.json().await?;
-        Ok(json)
+            .await;
+
+        match res {
+            Ok(response) => {
+                let json = response.json::<QueryResult>().await;
+                match json {
+                    Ok(json) => {
+                        Ok(json)
+                        
+                    },
+                    Err(e) => {
+                        eprintln!("Error parsing response: {:?}", e);
+                        Err(SanityError::ParseError(e.to_string()))
+                    }
+                }
+            },
+            Err(e) => {
+                error!("Error creating document: {:?}", e);
+                Err(SanityError::MutateError(e.to_string()))
+            }
+        }
+
     }
 
     pub async fn create_or_replace(&self, doc: Value) -> Result<Value, reqwest::Error> {
