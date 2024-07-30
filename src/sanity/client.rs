@@ -8,7 +8,8 @@ use reqwest::Client;
 // use log::{info, debug, error, warn};
 
 // use crate::sanity::errs::SanityError;
-use crate::sanity::endpoints::{MutateEndpoint, QueryEndpoint};
+use crate::sanity::endpoints::query::QueryEndpoint;
+use crate::sanity::endpoints::mutate::MutateEndpoint;
 
 
 #[derive(Deserialize, Debug)]
