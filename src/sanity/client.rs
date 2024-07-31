@@ -42,7 +42,7 @@ impl SanityClient {
     }
 
     pub fn mutate(&self) -> MutateEndpoint {
-        MutateEndpoint::new(self.token, self.dataset, self.project)
+        MutateEndpoint::new(&self.token, &self.dataset, &self.project)
     }
 
     pub fn query(&self) -> QueryEndpoint {

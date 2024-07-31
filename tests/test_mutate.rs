@@ -1,13 +1,14 @@
 use sanity_client::sanity::client::SanityClient;
 use dotenv::dotenv;
 use std::env;
+use serde_json::json;
 
-fn setup<'a>() -> SanityClient<'a> {
+fn setup() -> SanityClient {
     dotenv().ok();
     let token = env::var("SANITY_TOKEN").unwrap();
     let dataset = env::var("SANITY_DATASET").unwrap();
     let project = env::var("SANITY_PROJECT").unwrap();
-    SanityClient::new(&token, &dataset, &project)
+    SanityClient::new(token, dataset, project)
 }
 
 
@@ -15,4 +16,17 @@ fn setup<'a>() -> SanityClient<'a> {
 async fn test_successful_create() {
     let client = setup();
 
+    let doc = json!({
+        "_type": "blueprints",
+        "name": "TEST ME",
+        "description": "This is a test document"
+    });
+
+    let res = client
+        .mutate()
+        .create(doc)
+        .await;
+
+    assert!(res.is_ok());
 }
+

@@ -11,21 +11,21 @@ use crate::sanity::errs::SanityError;
 
 
 
-pub struct QueryEndpoint {
-    token: String,
-    dataset: String, 
-    project:String,
+pub struct QueryEndpoint<'a> {
+    token: &'a String,
+    dataset: &'a String, 
+    project: &'a String,
     client: Client,
     url: Option<String>,
     headers: Option<HeaderMap>,
 }
 
-impl QueryEndpoint {
-    pub fn new(token: &str, dataset: &str, project: &str) -> Self {
+impl <'a> QueryEndpoint<'a> {
+    pub fn new(token: &'a String, dataset: &'a String, project: &'a String) -> Self {
         QueryEndpoint {
-            token: token.to_string(),
-            dataset: dataset.to_string(),
-            project: project.to_string(),
+            token: token,
+            dataset: dataset,
+            project: project,
             client: Client::new(),
             url: Some(Endpoint::Query.get_url(project, dataset)),
             headers: {

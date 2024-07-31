@@ -1,27 +1,21 @@
 use sanity_client::sanity::client::SanityClient;
 use dotenv::dotenv;
 use std::env;
+use std::any::type_name;
 
+fn setup() -> SanityClient {
+    dotenv().ok();
+    let token = env::var("SANITY_TOKEN").unwrap();
+    let dataset = env::var("SANITY_DATASET").unwrap();
+    let project = env::var("SANITY_PROJECT").unwrap();
+    SanityClient::new(token, dataset, project)
+}
 
-
-
-// fn setup<'a>() -> SanityClient<'a> {
-//     dotenv().ok();
-//     let token = env::var("SANITY_TOKEN").unwrap();
-//     let dataset = env::var("SANITY_DATASET").unwrap();
-//     let project = env::var("SANITY_PROJECT").unwrap();
-//     SanityClient::new(&token, &dataset, &project)
-//
-// }
-//
 
 #[tokio::test]
 async fn test_sanity_fetch_successfull_query() {
     dotenv().ok();
-    let token = std::env::var("SANITY_TOKEN").unwrap();
-    let dataset = std::env::var("SANITY_DATASET").unwrap();
-    let project = std::env::var("SANITY_PROJECT").unwrap();
-    let client = SanityClient::new(&token, &dataset, &project);
+    let client = setup();
     let query = "*[_type == 'blueprints' && name match('Excel')]";
     let result = client
         .query()
@@ -37,11 +31,7 @@ async fn test_sanity_fetch_successfull_query() {
 async fn test_bad_query() {
     // This should return an error
     dotenv().ok();
-    let token = env::var("SANITY_TOKEN").unwrap();
-    let dataset = env::var("SANITY_DATASET").unwrap();
-    let project = env::var("SANITY_PROJECT").unwrap();
-
-    let client = SanityClient::new(&token, &dataset, &project);
+    let client = setup();
 
     let query = "*[_type == 'blueprints' && missing_the_closing_bracket";
 
@@ -50,23 +40,20 @@ async fn test_bad_query() {
 
     assert_eq!(result.is_ok(), false);
 
-
-
-
 }
 
 
+#[tokio::test] 
+async fn test_good_query_no_results() {
+    dotenv().ok();
+    let client = setup();
+    let query = "*[_type == 'blueprints' && name match('NO_MATCH')]";
+    let result = client
+        .query()
+        .fetch(query)
+        .await 
+        .unwrap();
 
-
-
-// async fn test_create() {
-//     let client = setup();
-//     assert!(result.result.len() > 0);
-// }
-//
-//
-
-
-
-
+    assert_eq!(result.result.len(), 0);
+}
 

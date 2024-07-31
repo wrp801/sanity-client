@@ -3,27 +3,25 @@ extern crate serde_json;
 
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::{Value, Map, json};
-use serde::Deserialize;
 use reqwest::Client;
 use log::{info, debug, error, warn};
-use chrono::Datelike;
 
-use crate::sanity::endpoints::endpoint::{Endpoint, QueryResult};
+use crate::sanity::endpoints::endpoint::Endpoint;
 use crate::sanity::errs::SanityError;
 
 
 pub struct MutateEndpoint<'a> {
-   token: &'a str,
-    dataset: &'a str, 
-    project:&'a str,
+   token: &'a String,
+    dataset: &'a String, 
+    project: &'a String,
     client: Client,
     url: Option<String>,
     headers: Option<HeaderMap>,
 
 }
 
-struct PatchBuilder<'a> {
-    endpoint: &'a MutateEndpoint<'a>,
+pub struct PatchBuilder<'a> {
+    endpoint:  &'a MutateEndpoint<'a>,
     id: &'a str,
     set: Option<Value>,
     unset: Option<Value>,
@@ -33,8 +31,8 @@ struct PatchBuilder<'a> {
 
 
 impl <'a> PatchBuilder<'a>  {
-    fn new(endpoint: &'a MutateEndpoint,id: &'a str) -> Self {
-        PatchBuilder {
+   pub fn new(endpoint: &'a MutateEndpoint,id: &'a str) -> Self {
+         PatchBuilder {
 
             endpoint: endpoint,
             id: id,
@@ -44,17 +42,17 @@ impl <'a> PatchBuilder<'a>  {
         }
     }
 
-    fn set(&mut self, set: Value) -> &mut Self {
+    pub fn set(&mut self, set: Value) -> &mut Self {
         self.set = Some(set);
         self
     }
 
-    fn unset(&mut self, unset: Value) -> &mut Self {
+    pub fn unset(&mut self, unset: Value) -> &mut Self {
         self.unset = Some(unset);
         self
     }
 
-    fn build(&mut self) -> &mut Self {
+    pub fn build(&mut self) -> &mut Self {
         let mut patch = Map::new();
         patch.insert("id".to_string(), Value::String(self.id.to_string()));
         if let Some(set) = &self.set {
@@ -89,8 +87,7 @@ impl <'a> PatchBuilder<'a>  {
 }
 
 impl<'a> MutateEndpoint<'a> {
-    pub fn new(token: &'a str, dataset: &'a str, project: &'a str) -> Self {
-        let client = Client::new();
+    pub fn new(token: &'a String, dataset: &'a String, project: &'a String) -> Self {
         MutateEndpoint {
             token: token,
             dataset: dataset,
@@ -107,7 +104,7 @@ impl<'a> MutateEndpoint<'a> {
         }
     }
 
-    pub async fn create(&self, doc: Value) -> Result<QueryResult, SanityError> {
+    pub async fn create(&self, doc: Value) -> Result<Value, SanityError> {
         let payload = json!({
             "mutations": [
                 {
@@ -125,7 +122,7 @@ impl<'a> MutateEndpoint<'a> {
 
         match res {
             Ok(response) => {
-                let json = response.json::<QueryResult>().await;
+                let json = response.json::<Value>().await;
                 match json {
                     Ok(json) => {
                         Ok(json)
@@ -183,9 +180,8 @@ impl<'a> MutateEndpoint<'a> {
         Ok(json)
     }
 
-    pub fn patch(&self, id:&'a str) -> PatchBuilder {
+    pub fn patch(&'a self, id:&'a str) -> PatchBuilder<'a> {
         PatchBuilder::new(self, id)
     }
-
 }
 

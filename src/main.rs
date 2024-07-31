@@ -9,7 +9,7 @@ async fn main() {
     let token = std::env::var("SANITY_TOKEN").unwrap();
     let dataset = std::env::var("SANITY_DATASET").unwrap();
     let project = std::env::var("SANITY_PROJECT").unwrap();
-    let client = SanityClient::new(&token, &dataset, &project);
+    let client = SanityClient::new(token, dataset, project);
     // let query = "*[_type == 'blueprints' && name match('Excel')]";
     let query = "*[_type == 'blueprints' && missing_the_closing_bracket";
     let result = client

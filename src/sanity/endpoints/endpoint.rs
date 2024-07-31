@@ -14,7 +14,7 @@ impl Endpoint {
     ///
     /// * `project`: The project ID
     /// * `dataset`: The name of the dataset
-    pub fn get_url(&self, project: &str, dataset: &str) -> String {
+    pub fn get_url(&self, project: &String, dataset: &String ) -> String {
         match self {
             Endpoint::Actions => format!("https://{}.api.sanity.io/v2021-10-21/data/actions/{}", project, dataset),
             Endpoint::Export => format!("https://{}.api.sanity.io/v2021-10-21/data/export/{}", project, dataset),
