@@ -13,7 +13,7 @@ use crate::sanity::endpoints::mutate::MutateEndpoint;
 
 
 #[derive(Deserialize, Debug)]
-/// This is the struct that holds the result of a query to the Sanity API. 
+/// This is the struct that holds the result of a GROQ query to the Sanity API. 
 /// 
 /// * `ms`: The nubmer of milliseconds it took to get the result.
 /// * `query`: The GROQ query that was executed
@@ -25,6 +25,14 @@ pub struct QueryResult {
 }
 
 #[derive(Debug)]
+/// This is the main struct that holds the Sanity client.
+///
+/// * `token`: The token to authenticate with the Sanity API
+/// * `dataset`: The dataset to use
+/// * `project`: The project ID to use
+///
+/// This struct is used to create a new client, and then use the client to create queries and mutations.
+/// USAGE:
 pub struct SanityClient {
     token: String,
     dataset: String, 

@@ -1,6 +1,7 @@
 use sanity_client::sanity::client::SanityClient;
 use dotenv::dotenv;
 use std::env;
+use serde_json::json;
 
 
 #[tokio::main]
@@ -11,29 +12,21 @@ async fn main() {
     let project = std::env::var("SANITY_PROJECT").unwrap();
     let client = SanityClient::new(token, dataset, project);
     // let query = "*[_type == 'blueprints' && name match('Excel')]";
-    let query = "*[_type == 'blueprints' && missing_the_closing_bracket";
-    let result = client
-        .query()
-        .fetch(query)
+    let patch = json!({"{description": "This is a test blueprint for integration tests. It has been patched."});
+    let query = "*[_type == 'blueprints' && name == 'Test Blueprint']";
+
+    let id = "5yEnY5RWDfL2hzwFTFNL3W".to_string();
+    let patch_results = client 
+        .mutate()
+        .patch()
+        // .query(&query.to_string())
+        .id(&id)
+        .set(patch)
+        .build()
+        .apply()
         .await;
 
-
-    match result {
-        Ok(_) => {
-            println!("Successfully executed query");
-        }
-        Err(e) => {
-            println!("{:?}", e);
-        }
-    }
-
-    // let create_json = json!({
-    //     "_type": "blueprints",
-    //     "name": "TESTME",
-    //     "description": "A TEST FOR RUST",
-    // });
-
-
+    println!("patch results: {:?}", patch_results);
 
 }
 

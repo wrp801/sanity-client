@@ -7,6 +7,8 @@ pub enum SanityError {
     ClientError(String),
     ParseError(String),
     NoDocIdError(String),
+    DeleteError(String),
+    PatchError(String),
 }
 
 impl From<reqwest::Error> for SanityError {
