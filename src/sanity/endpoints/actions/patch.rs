@@ -42,10 +42,10 @@ impl <'a> PatchBuilder<'a>  {
     ///
     /// * `set`: The JSON value to be set
     pub fn set(&mut self, set: Value) -> &mut Self {
-        let payload = json!({
-            "set": set
-        });
-        self.set = Some(payload);
+        // let payload = json!({
+        //     "set": set
+        // });
+        self.set = Some(set);
         self
     }
 
@@ -110,7 +110,7 @@ impl <'a> PatchBuilder<'a>  {
 
 
     /// Sends the current patch request through the client to the Sanity API
-    pub async fn apply(&self) -> Result<Value, SanityError> {
+    pub async fn execute(&self) -> Result<Value, SanityError> {
         let url = self.endpoint.url.as_ref().expect("Mutate URL is not proplery set");
         let headers = self.endpoint.headers.clone().expect("Headers are not properly set");
         let res = self.endpoint.client.post(url)

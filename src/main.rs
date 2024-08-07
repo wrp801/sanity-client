@@ -12,22 +12,21 @@ async fn main() {
     let project = std::env::var("SANITY_PROJECT").unwrap();
     let client = SanityClient::new(token, dataset, project);
     // let query = "*[_type == 'blueprints' && name match('Excel')]";
-    let patch = json!({"{description": "This is a test blueprint for integration tests. It has been patched."});
-    let query = "*[_type == 'blueprints' && name == 'Test Blueprint']";
+    let patch = json!({"description": "Patched description",
+                        "name": "Patched Name",
+                    });
+    // let query = "*[_type == 'blueprints' && name == 'Test Blueprint']";
 
     let id = "5yEnY5RWDfL2hzwFTFNL3W".to_string();
-    let patch_results = client 
+
+    let delete_response = client
         .mutate()
-        .patch()
-        // .query(&query.to_string())
+        .delete() 
         .id(&id)
-        .set(patch)
-        .build()
-        .apply()
+        .execute()
         .await;
 
-    println!("patch results: {:?}", patch_results);
-
+    println!("{:?} ", delete_response);
 }
 
 

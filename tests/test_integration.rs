@@ -49,7 +49,7 @@ async fn integration_test_create_document_check_results_patch_and_delete() {
         .query(&query.to_string())
         .set(patch)
         .build()
-        .apply()
+        .execute()
         .await;
 
     assert!(patch_results.is_ok());
@@ -64,9 +64,17 @@ async fn integration_test_create_document_check_results_patch_and_delete() {
         .result;
 
     assert_eq!(query_results[0]["description"], "This is a test blueprint for integration tests. It has been patched.");
+
+    // delete the document 
+    let delete_response = client 
+        .mutate()
+        .delete()
+        .query(&query.to_string())
+        .execute()
+        .await;
+
+    assert!(delete_response.is_ok());
 }
-
-
 
 
 
