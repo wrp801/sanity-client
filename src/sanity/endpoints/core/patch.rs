@@ -3,12 +3,9 @@ extern crate serde_json;
 
 use std::collections::HashMap;
 
-use reqwest::header::{HeaderMap, HeaderValue};
-use serde_json::{Value, Map, json};
-use reqwest::Client;
-use log::{info, debug, error, warn};
+use serde_json::{Value,  json};
+use log::{info, error };
 
-use crate::sanity::endpoints::endpoint::Endpoint;
 use crate::sanity::errs::SanityError;
 use crate::sanity::endpoints::mutate::MutateEndpoint;
 
@@ -90,7 +87,6 @@ impl <'a> PatchBuilder<'a>  {
         }
 
         // check the set or unset values
-
         if let Some(_set) = &self.set {
             patch.insert("set".to_string(), json!(self.set.as_ref().unwrap()));
         }

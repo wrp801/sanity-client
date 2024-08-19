@@ -8,8 +8,8 @@ use log::{info, debug, error, warn};
 
 use crate::sanity::endpoints::endpoint::Endpoint;
 use crate::sanity::errs::SanityError;
-use crate::sanity::endpoints::actions::delete::DeleteBuilder;
-use crate::sanity::endpoints::actions::patch::PatchBuilder;
+use crate::sanity::endpoints::core::delete::DeleteBuilder;
+use crate::sanity::endpoints::core::patch::PatchBuilder;
 
 
 pub struct MutateEndpoint<'a> {

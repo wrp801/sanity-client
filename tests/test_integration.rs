@@ -42,7 +42,7 @@ async fn integration_test_create_document_check_results_patch_and_delete() {
     assert!(query_results.unwrap().result.len() > 0);
 
     // patch the document 
-    let patch = json!({"set": {"description": "This is a test blueprint for integration tests. It has been patched."}});
+    let patch = json!({"description": "This is a test blueprint for integration tests. It has been patched."});
     let patch_results = client 
         .mutate()
         .patch()

@@ -15,9 +15,9 @@ fn setup() -> SanityClient {
 #[tokio::test]
 async fn test_sanity_fetch_successfull_query() {
     dotenv().ok();
-    let client = setup();
+    let sanity = setup();
     let query = "*[_type == 'blueprints' && name match('Excel')]";
-    let result = client
+    let result = sanity
         .query()
         .fetch(query)
         .await 

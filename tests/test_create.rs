@@ -28,5 +28,18 @@ async fn test_successful_create() {
         .await;
 
     assert!(res.is_ok());
+
+    // delete the document 
+    let query = "*[_type == 'blueprints' && name == 'TEST ME']".to_string();
+
+    let delete_res = client 
+        .mutate()
+        .delete()
+        .query(&query)
+        .execute()
+        .await;
+
+    assert!(delete_res.is_ok());
+
 }
 

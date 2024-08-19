@@ -9,6 +9,7 @@ pub enum SanityError {
     NoDocIdError(String),
     DeleteError(String),
     PatchError(String),
+    ExportError(String),
 }
 
 impl From<reqwest::Error> for SanityError {
