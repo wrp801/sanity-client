@@ -10,6 +10,9 @@ use reqwest::Client;
 // use crate::sanity::errs::SanityError;
 use crate::sanity::endpoints::query::QueryEndpoint;
 use crate::sanity::endpoints::mutate::MutateEndpoint;
+use crate::sanity::endpoints::export::ExportEndpoint;
+
+use super::endpoints::export::ExportEndpoint;
 
 
 #[derive(Deserialize, Debug)]
@@ -55,5 +58,9 @@ impl SanityClient {
 
     pub fn query(&self) -> QueryEndpoint {
         QueryEndpoint::new(&self.token, &self.dataset, &self.project)
+    }
+
+    pub fn export(&self) -> ExportEndpoint  {
+        ExportEndpoint::new(&self.token, &self.dataset, &self.project)
     }
 }
