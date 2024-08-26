@@ -1,8 +1,8 @@
 extern crate reqwest;
 extern crate serde_json;
 
-use serde_json::{Value, json};
-use log::{info, error };
+use serde_json::Value;
+use log::info;
 use std::path::PathBuf;
 use std::io::BufWriter;
 
@@ -42,9 +42,10 @@ impl <'a> ExportBuilder<'a> {
         self
     }
 
-    pub async fn fetch(&self) -> Result<(), SanityError> {
+    pub async fn fetch(&mut self) -> Result<(), SanityError> {
         let mut form = reqwest::multipart::Form::new();
-        form = form.text("types", self.doc_type);
+        let form_text = self.doc_type.clone().unwrap();
+        form = form.text("types", form_text);
 
         let url = self.endpoint.url.as_ref().expect("Mutate URL is not proplery set");
         let headers = self.endpoint.headers.clone().expect("Headers are not properly set");
@@ -59,10 +60,10 @@ impl <'a> ExportBuilder<'a> {
             Ok(response) => {
                 if response.status().is_success() {
                     info!("Export request successful");
-                let body = res.text().await?;
+                let body = response.text().await?;
                 let json: Value = serde_json::from_str(&body)?;
 
-                if let Some(filename) = self.filename {
+                if let Some(_filename) = self.filename {
                     self.data = Some(json.clone());
                 } else {
                     println!("Data from Sanity:");
@@ -125,6 +126,7 @@ impl <'a> ExportEndpoint<'a> {
             }
         };
 
+        
         ExportBuilder::new(&export_endpoint)
 
     }
