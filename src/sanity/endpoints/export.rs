@@ -10,15 +10,17 @@ use std::io::BufWriter;
 use crate::sanity::endpoints::endpoint::Endpoint;
 use crate::sanity::errs::SanityError;
 
-pub struct ExportBuilder<'a> {
-    endpoint: &'a ExportEndpoint<'a>,
+
+pub struct ExportBuilder {
+    endpoint: ExportEndpoint,
     doc_type: Option<String>,
     data: Option<Value>,
-    filename: Option<&'a PathBuf>
+    filename: Option<PathBuf>,
 }
 
-impl <'a> ExportBuilder<'a> {
-    pub fn new(endpoint: &'a ExportEndpoint) -> Self{
+
+impl  ExportBuilder {
+    pub fn new(endpoint: ExportEndpoint) -> Self{
         ExportBuilder{
             endpoint: endpoint,
             doc_type: None,
@@ -27,7 +29,7 @@ impl <'a> ExportBuilder<'a> {
         }
     }
 
-    pub fn doc_type(&mut self, doc_type: &'a Vec<String>) -> &mut Self {
+    pub fn doc_type(&mut self, doc_type: Vec<String>) -> &mut Self {
         self.doc_type = Some(doc_type.join(","));
         self
     }
@@ -37,7 +39,7 @@ impl <'a> ExportBuilder<'a> {
         self
     }
 
-    pub fn filename(&mut self, filename: &'a PathBuf) -> &mut Self {
+    pub fn filename(&mut self, filename: PathBuf) -> &mut Self {
         self.filename = Some(filename);
         self
     }
@@ -63,7 +65,7 @@ impl <'a> ExportBuilder<'a> {
                 let body = response.text().await?;
                 let json: Value = serde_json::from_str(&body)?;
 
-                if let Some(_filename) = self.filename {
+                if let Some(_filename) = self.filename.clone() {
                     self.data = Some(json.clone());
                 } else {
                     println!("Data from Sanity:");
@@ -85,8 +87,8 @@ impl <'a> ExportBuilder<'a> {
     }
 
     pub fn write(&self) -> Result<(), SanityError> {
-        if let Some(data) = &self.data {
-            if let Some(filename) = self.filename {
+        if let Some(_data) = &self.data {
+            if let Some(filename) = self.filename.clone() {
                 let file = std::fs::File::create(filename);
                 let mut writer = BufWriter::new(file.unwrap());
                 serde_json::to_writer(&mut writer, &self.data);
@@ -100,36 +102,35 @@ impl <'a> ExportBuilder<'a> {
     }
 }
 
-pub struct ExportEndpoint<'a> {
-    token: &'a String,
-    dataset: &'a String,
-    project: &'a String,
+pub struct ExportEndpoint {
+    token: String,
+    dataset: String,
+    project: String,
     client: reqwest::Client,
     url: Option<String>,
     headers: Option<reqwest::header::HeaderMap>,
 }
 
-impl <'a> ExportEndpoint<'a> {
-    pub fn new(token: &'a String, dataset: &'a String, project: &'a String) -> ExportBuilder<'a> {
+impl ExportEndpoint {
+    pub fn new(token: String, dataset: String, project: String) -> ExportBuilder {
         let export_endpoint = ExportEndpoint {
-            token: token,
-            dataset: dataset,
-            project: project,
+            token: token.clone(),
+            dataset: dataset.clone(),
+            project: project.clone(),
             client: reqwest::Client::new(),
-            url: Some(Endpoint::Export.get_url(project, dataset)),
+            url: Some(Endpoint::Export.get_url(&project, &dataset)),
             headers: {
                 let mut headers = reqwest::header::HeaderMap::new();
                 let header_value = format!("Bearer {}", token);
                 headers.insert("Authorization", reqwest::header::HeaderValue::from_str(&header_value).unwrap());
                 headers.insert("Content-Type", reqwest::header::HeaderValue::from_static("application/json"));
                 Some(headers)
-            }
+            },
         };
 
-        
-        ExportBuilder::new(&export_endpoint)
-
+        ExportBuilder::new(export_endpoint)
     }
 }
+
 
 

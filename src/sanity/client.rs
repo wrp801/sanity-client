@@ -60,6 +60,9 @@ impl SanityClient {
     }
 
     pub fn export(&self) -> ExportBuilder  {
-        ExportEndpoint::new(&self.token, &self.dataset, &self.project)
+        let token = self.token.clone();
+        let dataset = self.dataset.clone();
+        let project = self.project.clone();
+        ExportEndpoint::new(token, dataset, project)
     }
 }
