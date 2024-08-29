@@ -1,10 +1,11 @@
 extern crate reqwest;
 extern crate serde_json;
 
-use serde_json::Value;
+use serde_json::{Value, Deserializer};
 use log::info;
 use std::path::PathBuf;
-use std::io::BufWriter;
+use std::io::{BufWriter, Write};
+use std::collections::HashMap;
 
 
 use crate::sanity::endpoints::endpoint::Endpoint;
@@ -39,22 +40,16 @@ impl  ExportBuilder {
         self
     }
 
-    pub fn filename(&mut self, filename: PathBuf) -> &mut Self {
-        self.filename = Some(filename);
-        self
-    }
-
-    pub async fn fetch(&mut self) -> Result<(), SanityError> {
-        let mut form = reqwest::multipart::Form::new();
-        let form_text = self.doc_type.clone().unwrap();
-        form = form.text("types", form_text);
-
+    pub async fn fetch(&mut self) -> Result<&mut Self, SanityError> {
         let url = self.endpoint.url.as_ref().expect("Mutate URL is not proplery set");
         let headers = self.endpoint.headers.clone().expect("Headers are not properly set");
+        let mut params = HashMap::new();
+        params.insert("types", self.doc_type.clone().unwrap());
         let client = reqwest::Client::new();
-        let res = client.get(url)
+        let res = client
+            .get(url)
+            .query(&params)
             .headers(headers)
-            .multipart(form)
             .send()
             .await;
 
@@ -63,19 +58,17 @@ impl  ExportBuilder {
                 if response.status().is_success() {
                     info!("Export request successful");
                 let body = response.text().await?;
-                let json: Value = serde_json::from_str(&body)?;
+                let json = Deserializer::from_str(&body).into_iter::<Value>();
+                // for item in json {
+                //     println!("{:?}", item);
+                // }
 
-                if let Some(_filename) = self.filename.clone() {
-                    self.data = Some(json.clone());
-                } else {
-                    println!("Data from Sanity:");
-                    println!("{}", json)
-                }
-
-                Ok(())
+                self.data = Some(json.collect::<Result<Value, _>>().unwrap());
+                Ok(self)
                 } else {
                     eprintln!("Export request failed with status code: {}", response.status());
-                    return Err(SanityError::ExportError(String::from("Export request failed")));
+                    // eprintln!("Response text: {:?}", response.text().await?);
+                    return Err(SanityError::ExportError(response.text().await?));
                 }
             },
             Err(e) => {
@@ -86,19 +79,27 @@ impl  ExportBuilder {
 
     }
 
-    pub fn write(&self) -> Result<(), SanityError> {
-        if let Some(_data) = &self.data {
-            if let Some(filename) = self.filename.clone() {
-                let file = std::fs::File::create(filename);
-                let mut writer = BufWriter::new(file.unwrap());
-                serde_json::to_writer(&mut writer, &self.data);
-                Ok(())
-            } else {
-                Err(SanityError::ExportError(String::from("No filename provided for writing")))
-            }
-        } else {
-            Err(SanityError::ExportError(String::from("No data to write")))
+    /// Writes the JSON stream to a file
+    ///
+    /// * `filename`: The name of the file to write the JSON stream to
+    pub fn write(&self, filename:PathBuf) -> Result<(), Box<dyn std::error::Error>>{
+        let file = std::fs::File::create(filename);
+        let mut writer = BufWriter::new(file.unwrap());
+        for item in self.data.as_ref().unwrap().as_array().unwrap() {
+            serde_json::to_writer(&mut writer, item)?;
+            writer.write_all(b"\n")?;
         }
+        
+        // serde_json::to_writer(&mut writer, &self.data)?;
+        Ok(())
+    }
+
+    pub fn print(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // for item in self.data.as_ref().unwrap().as_array().unwrap() {
+        //     println!("{:?}", item);
+        // }
+        println!("{}", serde_json::to_string_pretty(&self.data)?);
+        Ok(())
     }
 }
 

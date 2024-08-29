@@ -16,12 +16,15 @@ fn setup() -> SanityClient {
 async fn test_successful_export_no_write() {
     let client = setup();
 
-    let doc_types = vec!("blueprints");
-    let res = client
+    let doc_types = vec!(String::from("blueprints"));
+
+    let res = client 
         .export() 
         .doc_type(doc_types)
-        .fetch();
+        .fetch()
+        .await;
 
+    assert!(res.is_ok())
 
 }
 

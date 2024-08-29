@@ -1,3 +1,4 @@
 /target
 .env
 runner.sh
+.idea/
