@@ -1,3 +1,4 @@
+
 extern crate reqwest;
 extern crate serde_json;
 
@@ -16,7 +17,6 @@ pub struct ExportBuilder {
     endpoint: ExportEndpoint,
     doc_type: Option<String>,
     data: Option<Value>,
-    filename: Option<PathBuf>,
 }
 
 
@@ -26,10 +26,12 @@ impl  ExportBuilder {
             endpoint: endpoint,
             doc_type: None,
             data: None,
-            filename: None
         }
     }
 
+    /// The document types (as defined in the schema) to export
+    ///
+    /// * `doc_type`: The vector of document types to export
     pub fn doc_type(&mut self, doc_type: Vec<String>) -> &mut Self {
         self.doc_type = Some(doc_type.join(","));
         self
@@ -40,6 +42,7 @@ impl  ExportBuilder {
         self
     }
 
+    /// Sends the request to the Sanity API to fetch the data. If the request is successful, the data is stored in the builder to be used later via the `write` or `print` methods
     pub async fn fetch(&mut self) -> Result<&mut Self, SanityError> {
         let url = self.endpoint.url.as_ref().expect("Mutate URL is not proplery set");
         let headers = self.endpoint.headers.clone().expect("Headers are not properly set");
@@ -59,15 +62,11 @@ impl  ExportBuilder {
                     info!("Export request successful");
                 let body = response.text().await?;
                 let json = Deserializer::from_str(&body).into_iter::<Value>();
-                // for item in json {
-                //     println!("{:?}", item);
-                // }
 
                 self.data = Some(json.collect::<Result<Value, _>>().unwrap());
                 Ok(self)
                 } else {
                     eprintln!("Export request failed with status code: {}", response.status());
-                    // eprintln!("Response text: {:?}", response.text().await?);
                     return Err(SanityError::ExportError(response.text().await?));
                 }
             },
@@ -79,7 +78,7 @@ impl  ExportBuilder {
 
     }
 
-    /// Writes the JSON stream to a file
+    /// Writes the JSON data to a file
     ///
     /// * `filename`: The name of the file to write the JSON stream to
     pub fn write(&self, filename:PathBuf) -> Result<(), Box<dyn std::error::Error>>{
@@ -94,10 +93,8 @@ impl  ExportBuilder {
         Ok(())
     }
 
+    /// Prints the JSON data from the API to the console in a pretty format
     pub fn print(&self) -> Result<(), Box<dyn std::error::Error>> {
-        // for item in self.data.as_ref().unwrap().as_array().unwrap() {
-        //     println!("{:?}", item);
-        // }
         println!("{}", serde_json::to_string_pretty(&self.data)?);
         Ok(())
     }
