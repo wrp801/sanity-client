@@ -13,30 +13,14 @@ async fn main() {
     let project = std::env::var("SANITY_PROJECT").unwrap();
     let client = SanityClient::new(token, dataset, project);
 
-    let action = "write";
-    let doc_types = vec!(String::from("freeBlueprints"));
+    let res = client 
+        .projects()
+        .list()
+        .await
+        .unwrap();
 
-    if action == "write" {
-        let output = PathBuf::from("testoutput.ndjson");
-        let _ = client 
-            .export() 
-            .doc_type(doc_types)
-            .fetch()
-            .await 
-            .unwrap()
-            .write(output);
-
-        println!("Successfully wrote file to testoutput.ndjson");
-    } else if action == "print" {
-        let _ = client 
-            .export() 
-            .doc_type(doc_types)
-            .fetch()
-            .await
-            .unwrap()
-            .print();
-    }
-
+    let pretty = serde_json::to_string_pretty(&res).unwrap();
+    println!("{}", pretty);
 }
 
 

@@ -1,16 +1,14 @@
 extern crate reqwest;
 extern crate serde_json;
 
-// use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::{Value, Map, json};
 use serde::Deserialize;
 use reqwest::Client;
-// use log::{info, debug, error, warn};
 
-// use crate::sanity::errs::SanityError;
 use crate::sanity::endpoints::query::QueryEndpoint;
 use crate::sanity::endpoints::mutate::MutateEndpoint;
 use crate::sanity::endpoints::export::{ExportEndpoint, ExportBuilder};
+use crate::sanity::endpoints::projects::ProjectEndpoint;
 
 
 
@@ -64,5 +62,12 @@ impl SanityClient {
         let dataset = self.dataset.clone();
         let project = self.project.clone();
         ExportEndpoint::new(token, dataset, project)
+    }
+
+    pub fn projects(&self) -> ProjectEndpoint {
+        let token = self.token.clone();
+        let dataset = self.dataset.clone();
+        let project = self.project.clone();
+        ProjectEndpoint::new(token ,dataset, project)
     }
 }

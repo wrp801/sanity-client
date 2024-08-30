@@ -10,6 +10,7 @@ pub enum SanityError {
     DeleteError(String),
     PatchError(String),
     ExportError(String),
+    ProjectError(String),
 }
 
 impl From<reqwest::Error> for SanityError {

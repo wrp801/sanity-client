@@ -44,7 +44,7 @@ impl  ExportBuilder {
 
     /// Sends the request to the Sanity API to fetch the data. If the request is successful, the data is stored in the builder to be used later via the `write` or `print` methods
     pub async fn fetch(&mut self) -> Result<&mut Self, SanityError> {
-        let url = self.endpoint.url.as_ref().expect("Mutate URL is not proplery set");
+        let url = self.endpoint.url.as_ref().expect("Export URL is not proplery set");
         let headers = self.endpoint.headers.clone().expect("Headers are not properly set");
         let mut params = HashMap::new();
         params.insert("types", self.doc_type.clone().unwrap());
