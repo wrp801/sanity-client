@@ -1,7 +1,5 @@
-extern crate clap;
 use clap::{Subcommand, Parser};
 
-#[cfg(feature = "sanrs")]
 #[derive(Parser, Debug)]
 #[clap(name = "sanrs", version = "0.1.0", about = "A simple CLI for sanity")]
 pub struct Cli {

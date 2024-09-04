@@ -1,2 +1,3 @@
+#[cfg(feature = "sanrs")]
 pub mod cli;
-pub mod sanrs;
+pub mod entry;
