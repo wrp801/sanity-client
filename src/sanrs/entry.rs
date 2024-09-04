@@ -9,7 +9,7 @@ use clap::Parser;
 use crate::sanrs::cli;
 
 #[cfg(feature = "sanrs")]
-pub fn main() {
+pub fn run() {
     let cli = cli::Cli::parse();
     match cli.command {
         cli::Commands::Query(args) => {
