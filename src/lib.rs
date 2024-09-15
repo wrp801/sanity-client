@@ -1,7 +1,9 @@
-pub mod sanity;
+#[cfg(feature = "sanrs")]
 pub mod sanrs;
-use sanity::client::SanityClient;
-use sanity::client::QueryResult;
+
+// core library
+pub mod sanity;
+pub use sanity::client::SanityClient;
 
 
 

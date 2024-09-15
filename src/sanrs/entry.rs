@@ -1,6 +1,5 @@
 #[cfg(feature = "sanrs")]
-use crate::SanityClient;
-
+use crate::sanity::client::SanityClient;
 
 #[cfg(feature = "sanrs")]
 use clap::Parser;
@@ -21,5 +20,10 @@ pub fn run() {
             println!("No arguments entered");
         }
     }
+}
+
+
+pub fn main() {
+
 }
 
