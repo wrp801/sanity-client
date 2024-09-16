@@ -1,3 +1,4 @@
+#[cfg(feature = "sanrs")]
 use clap::{Subcommand, Parser};
 
 #[derive(Parser, Debug)]
@@ -19,13 +20,13 @@ pub struct QueryArgs {
     #[clap(short, long, required = false)]
     pub token: Option<String>,
 
-    #[clap(short='d', long, required = true)]
+    #[clap(short='d', long, required = false)]
     pub dataset: String,
 
-    #[clap(short='q', long, required = true)]
+    #[clap(short='q', long, required = false)]
     pub query: String, 
 
-    #[clap(short='i', long, required = false, action)]
-    pub interactive: Option<bool>,
+    #[clap(short='i', long, required = false, action = clap::ArgAction::SetTrue)]
+    pub interactive: bool,
 }
 

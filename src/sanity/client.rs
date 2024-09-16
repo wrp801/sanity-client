@@ -24,7 +24,7 @@ pub struct QueryResult {
     pub result: Vec<Value>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// This is the main struct that holds the Sanity client.
 ///
 /// * `token`: The token to authenticate with the Sanity API

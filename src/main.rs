@@ -4,6 +4,11 @@ use sanity_client::SanityClient;
 use sanity_client::sanrs::entry;
 
 #[cfg(feature = "sanrs")]
-pub fn main() {
-    let _ = entry::run();
+#[tokio::main]
+pub async fn main() {
+    let token = String::from("my-token");
+    let dataset = String::from("dev");
+    let project = String::from("my-project");
+    let client = SanityClient::new(token, dataset, project);
+    entry::run(&client).await
 }

@@ -8,22 +8,28 @@ use clap::Parser;
 use crate::sanrs::cli;
 
 #[cfg(feature = "sanrs")]
-pub fn run() {
+use crate::sanrs::query_shell;
+
+#[cfg(feature = "sanrs")]
+pub async fn run(client: &SanityClient) {
     let cli = cli::Cli::parse();
     match cli.command {
         cli::Commands::Query(args) => {
-            let dataset = args.dataset;
-            let query = args.query;
-            println!("Query args are {:?} and {:?}", dataset, query);
-        },
+            let interactive = args.interactive;
+            if interactive {
+                println!("Entering interactive query shell");
+                // spin up the query shell
+                let client_clone = client.clone();
+                let _ = query_shell::run_shell(&client_clone).await;
+            } else {
+                let dataset = args.dataset;
+                let query = args.query;
+            }
+        }
         _ => {
             println!("No arguments entered");
         }
     }
 }
 
-
-pub fn main() {
-
-}
-
+pub fn main() {}
