@@ -1,18 +1,22 @@
 #[cfg(feature = "sanrs")]
-use std::io::{self, Write, BufRead};
+use crate::SanityClient;
+#[cfg(feature = "sanrs")]
+use std::io::{self, BufRead, Write};
 #[cfg(feature = "sanrs")]
 use std::sync::{Arc, Mutex};
 #[cfg(feature = "sanrs")]
-use crate::SanityClient;
+extern crate serde_json;
+#[cfg(feature = "sanrs")]
+use colored::*;
 
 #[cfg(feature = "sanrs")]
-pub async fn run_shell(client:&SanityClient) {
+pub async fn run_shell(client: &SanityClient) {
     let mut client = Arc::new(Mutex::new(client));
-    let mut input = String::new();
     let stdin = io::stdin();
     let mut handle = stdin.lock();
     loop {
-        print!("sanrs> ");
+        print!("{} ", "sanrs> ".bright_green().bold());
+        let mut input = String::new();
         io::stdout().flush().unwrap();
         handle.read_line(&mut input).unwrap();
         let mut input = String::from(input.trim());
@@ -24,12 +28,16 @@ pub async fn run_shell(client:&SanityClient) {
         let response = client.query().fetch(input_str).await;
         match response {
             Ok(resp) => {
-                println!("{:?}", resp)
-            },
+                // FIX: This is not printing to a pretty json string. Goal is to have it print to a
+                // human friendly format
+                let pretty_string = serde_json::to_string_pretty(&resp.result).unwrap();
+                println!("{:?}", pretty_string);
+                input.clear()
+            }
             Err(err) => {
-                eprintln!("The provided query returned an error: {:?}", err)
+                eprintln!("The provided query returned an error: {:?}", err);
+                input.clear()
             }
         }
-        input.clear();
     }
 }

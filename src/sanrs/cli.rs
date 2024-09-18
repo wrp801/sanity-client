@@ -20,11 +20,11 @@ pub struct QueryArgs {
     #[clap(short, long, required = false)]
     pub token: Option<String>,
 
-    #[clap(short='d', long, required = false)]
+    #[clap(short='d', long, required = true)]
     pub dataset: String,
 
     #[clap(short='q', long, required = false)]
-    pub query: String, 
+    pub query: Option<String>, 
 
     #[clap(short='i', long, required = false, action = clap::ArgAction::SetTrue)]
     pub interactive: bool,
