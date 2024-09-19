@@ -53,6 +53,7 @@ use serde_json::{Value, json};
 use crate::sanity::errs::SanityError;
 use crate::sanity::endpoints::mutate::MutateEndpoint;
 
+// TODO: fill out docs
 pub struct DeleteBuilder<'a> {
     pub endpoint:  &'a MutateEndpoint<'a>,
     id: Option<&'a String>,

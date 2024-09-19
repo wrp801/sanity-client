@@ -3,28 +3,25 @@ extern crate serde_json;
 
 use std::collections::HashMap;
 
-use serde_json::{Value,  json};
-use log::{info, error };
+use log::{error, info};
+use serde_json::{json, Value};
 
-use crate::sanity::errs::SanityError;
 use crate::sanity::endpoints::mutate::MutateEndpoint;
+use crate::sanity::errs::SanityError;
 
-
+// TODO: fill out docs
 pub struct PatchBuilder<'a> {
-    endpoint:  &'a MutateEndpoint<'a>,
+    endpoint: &'a MutateEndpoint<'a>,
     id: Option<&'a String>,
     set: Option<Value>,
     unset: Option<&'a String>,
     payload: Option<Value>,
     query: Option<&'a String>,
-
-
 }
 
-impl <'a> PatchBuilder<'a>  {
-   pub fn new(endpoint: &'a MutateEndpoint) -> Self {
-         PatchBuilder {
-
+impl<'a> PatchBuilder<'a> {
+    pub fn new(endpoint: &'a MutateEndpoint) -> Self {
+        PatchBuilder {
             endpoint: endpoint,
             id: None,
             set: None,
@@ -55,9 +52,8 @@ impl <'a> PatchBuilder<'a>  {
         self
     }
 
-
     /// This builds the patch request by providing the query for the returning documents to be
-    /// modified 
+    /// modified
     ///
     /// * `query`: The GROQ query for the documents to be modified
     pub fn query(&mut self, query: &'a String) -> &mut Self {
@@ -73,16 +69,15 @@ impl <'a> PatchBuilder<'a>  {
         self
     }
 
+    // TODO: fill out docs
     /// Builds the request for the patch based off of the query/id and set/unset
     pub fn build(&mut self) -> &mut Self {
         let mut patch = HashMap::new();
-        if let Some(_id) = &self.id{
+        if let Some(_id) = &self.id {
             patch.insert("id".to_string(), json!(self.id.unwrap()));
-        }
-        else if let Some(_query) = &self.query{
+        } else if let Some(_query) = &self.query {
             patch.insert("query".to_string(), json!(self.query.unwrap()));
-        }
-        else {
+        } else {
             panic!("No ID or Query set for patch");
         }
 
@@ -104,12 +99,23 @@ impl <'a> PatchBuilder<'a>  {
         self
     }
 
-
+    // TODO: fill out docs
     /// Sends the current patch request through the client to the Sanity API
     pub async fn execute(&self) -> Result<Value, SanityError> {
-        let url = self.endpoint.url.as_ref().expect("Mutate URL is not proplery set");
-        let headers = self.endpoint.headers.clone().expect("Headers are not properly set");
-        let res = self.endpoint.client.post(url)
+        let url = self
+            .endpoint
+            .url
+            .as_ref()
+            .expect("Mutate URL is not proplery set");
+        let headers = self
+            .endpoint
+            .headers
+            .clone()
+            .expect("Headers are not properly set");
+        let res = self
+            .endpoint
+            .client
+            .post(url)
             .headers(headers)
             .json(&self.payload)
             .send()
@@ -122,7 +128,9 @@ impl <'a> PatchBuilder<'a>  {
                 } else {
                     error!("Patch request failed: {:?}", response);
                     let resp_text = response.text().await;
-                    return Err(SanityError::MutateError(resp_text.unwrap_or("".to_string())));
+                    return Err(SanityError::MutateError(
+                        resp_text.unwrap_or("".to_string()),
+                    ));
                 }
                 let json = response.json::<Value>().await;
                 match json {
@@ -140,5 +148,3 @@ impl <'a> PatchBuilder<'a>  {
         }
     }
 }
-
-

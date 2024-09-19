@@ -10,6 +10,7 @@ extern crate serde_json;
 use colored::*;
 
 #[cfg(feature = "sanrs")]
+// TODO: fill out docs
 pub async fn run_shell(client: &SanityClient) {
     let mut client = Arc::new(Mutex::new(client));
     let stdin = io::stdin();

@@ -9,6 +9,7 @@ use crate::sanity::errs::SanityError;
 
 
 
+// TODO: fill out docs
 pub struct ProjectEndpoint {
     token: String,
     dataset: String,
@@ -106,6 +107,7 @@ impl ProjectEndpoint {
         }
     }
 
+// TODO: fill out docs
     pub async fn list_datasets(&self) {
 
     }

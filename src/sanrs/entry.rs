@@ -11,6 +11,7 @@ use crate::sanrs::cli;
 use crate::sanrs::query_shell;
 
 #[cfg(feature = "sanrs")]
+// TODO: fill out docs
 pub async fn run(client: &SanityClient) {
     let cli = cli::Cli::parse();
     match cli.command {
