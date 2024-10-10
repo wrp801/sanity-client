@@ -1,3 +1,4 @@
+#[cfg(feature = "sanrs")]
 use sanity_client::SanityClient;
 
 #[cfg(feature = "sanrs")]

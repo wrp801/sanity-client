@@ -4,3 +4,5 @@ pub mod cli;
 pub mod entry;
 #[cfg(feature = "sanrs")]
 pub mod query_shell;
+#[cfg(feature = "sanrs")]
+pub mod config;
