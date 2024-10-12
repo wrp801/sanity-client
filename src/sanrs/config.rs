@@ -11,24 +11,24 @@ use {
     std::fs,
     std::env,
     serde::{Deserialize, Serialize, Serializer},
-    std::collections::BTreeMap
+    std::collections::BTreeMap,
+    toml,
 };
 
 const DIR_NAME:&str = "sanity";
 const FILE_NAME:&str = ".sanityrc";
 
-
 #[derive(Serialize, Deserialize)]
-struct Environment {
-    api_token: String,
-    dataset: String,
-    project_id: String,
+pub struct Environment {
+    pub api_token: String,
+    pub dataset: String,
+    pub project_id: String,
 }
 
 #[derive(Deserialize)]
-struct Config {
-    env_name: String,
-    env: Environment,
+pub struct Config {
+    pub env_name: String,
+    pub env: Environment,
 }
 
 impl Serialize for Config {
@@ -71,8 +71,8 @@ pub fn create_env_toml(name: String, token: String, dataset: String, project: St
 pub fn create_file(toml_string: &String) -> Result<(), Box<dyn std::error::Error>> {
     let home_dir = env::var("HOME")?;
     let dir_path = Path::new(&home_dir).join(DIR_NAME);
-    let file_path = Path::new(&home_dir).join(".sanity/.sanityrc");
-    // let file_path = Path::new(&home_dir).join(DIR_NAME, FILE_NAME);
+    // let file_path = Path::new(&home_dir).join(".sanity/.sanityrc");
+    let file_path = Path::new(&home_dir).join(DIR_NAME).join(FILE_NAME);
     // create the directory first
     DirBuilder::new().recursive(true).create(dir_path).unwrap();
 
@@ -91,4 +91,13 @@ pub fn append_config(toml_string: &String) -> Result<(), Box<dyn std::error::Err
 
     file.write(toml_string.as_bytes())?;
     Ok(())
+}
+
+pub fn read_config() -> Result<Config, Box<dyn std::error::Error>> {
+    let home_dir = env::var("HOME")?;
+    let file_path = Path::new(&home_dir).join(DIR_NAME).join(FILE_NAME);
+    let file_contents = std::fs::read_to_string(file_path)?;
+    let toml_data:Config = toml::from_str(&file_contents)?;
+
+    return Ok(toml_data)
 }

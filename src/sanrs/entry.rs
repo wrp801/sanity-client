@@ -1,4 +1,4 @@
-#[cfg(feature = "sanrs")]
+// #[cfg(feature = "sanrs")]
 use {
     crate::sanity::client::SanityClient,
     clap::Parser,
@@ -7,10 +7,38 @@ use {
     std::io::prelude::*,
     std::fs,
     std::env,
-    std::path::Path
+    std::path::Path,
+    std::process
 };
+
+fn config_exists() -> bool {
+    let home = env::var("HOME").expect("Home is not properly defined");
+    let file_path = Path::new(&home).join(".sanity/.sanityrc");
+
+    let res =  std::fs::metadata(file_path);
+
+    match res {
+        Ok(res) => true,
+        Err(res) => false
+    }
+}
+
+
 // TODO: fill out docs
-pub async fn run(client: &SanityClient) {
+pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
+
+    if !config_exists() {
+        eprintln!("Config file does not exist. Run `sanrs init` to create a config file");
+        process::exit(1);
+    }
+    let config = config::read_config()?;
+    let token = config.env.api_token;
+    let dataset = config.env.dataset;
+    let project = config.env.project_id;
+
+    let client = SanityClient::new(token, dataset, project);
+
+
     let cli = cli::Cli::parse();
     match cli.command {
         cli::Commands::Query(args) => {
@@ -65,6 +93,7 @@ pub async fn run(client: &SanityClient) {
             println!("No arguments entered");
         }
     }
+    Ok(())
 }
 
 pub fn main() {}
