@@ -1,7 +1,6 @@
 #[cfg(feature = "sanrs")]
 use {
-    sanity_client::SanityClient,
-    sanity_client::sanrs::{config, entry}
+    sanity_client::sanrs::entry
 };
 
 #[cfg(feature = "sanrs")]

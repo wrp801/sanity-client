@@ -1,4 +1,3 @@
-
 #[cfg(feature = "sanrs")]
 use {
     crate::SanityClient,
@@ -50,7 +49,6 @@ impl Serialize for Config {
 /// * `dataset`: The dataset to use for the section
 /// * `project`: The project ID to use for the section
 pub fn create_env_toml(name: String, token: String, dataset: String, project: String) -> String {
-    println!("Creating new config");
     let sanity_env = Environment {
         api_token: token,
         dataset: dataset,
@@ -74,22 +72,30 @@ pub fn create_file(toml_string: &String) -> Result<(), Box<dyn std::error::Error
     // let file_path = Path::new(&home_dir).join(".sanity/.sanityrc");
     let file_path = Path::new(&home_dir).join(DIR_NAME).join(FILE_NAME);
     // create the directory first
-    DirBuilder::new().recursive(true).create(dir_path).unwrap();
+    println!("The file path is {:?}", file_path);
+
+    DirBuilder::new().recursive(true).create(&dir_path)?;
 
     let mut file = File::options().create(true).write(true).open(file_path)?;
 
     file.write_all(toml_string.as_bytes())?;
+    file.flush()?;
     Ok(())
 }
 
 pub fn append_config(toml_string: &String) -> Result<(), Box<dyn std::error::Error>> {
+    let home_dir = env::var("HOME")?;
+    let dir_path = Path::new(&home_dir).join(DIR_NAME);
+    // let file_path = Path::new(&home_dir).join(".sanity/.sanityrc");
+    let file_path = Path::new(&home_dir).join(DIR_NAME).join(FILE_NAME);
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
-        .open("~sanity/.sanityrc")
-        .unwrap();
+        .open(file_path)?;
 
+    file.write("\n".as_bytes())?;
     file.write(toml_string.as_bytes())?;
+    file.flush()?;
     Ok(())
 }
 
