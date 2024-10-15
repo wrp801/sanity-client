@@ -22,7 +22,8 @@ pub enum ConfigCmds {
     /// Add a new section to the config file
     Add(ConfigArgs),
     Remove(RemoveArgs),
-    View
+    View,
+    Edit
 }
 
 #[derive(Parser, Debug)]

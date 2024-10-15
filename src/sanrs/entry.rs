@@ -90,6 +90,16 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
                 let output_str = String::from_utf8_lossy(&output.stdout);
                 println!("{}", output_str)
             }
+            cli::ConfigCmds::Edit => {
+                let home = env::var("HOME").expect("Home is not properly defined");
+                let file_path = Path::new(&home).join("sanity/.sanityrc");
+                Command::new("vim")
+                    .args([file_path.into_os_string().into_string().unwrap()])
+                    .status()
+                    .expect("Failed to edit config file");
+                println!("Successfully edited config file")
+
+            }
             cli::ConfigCmds::Remove(args) => {
                 if !config_exists() {
                     eprintln!("The .sanityrc file does not exist. To initialize the config file, run `sanrs config init` to establish a profile");
