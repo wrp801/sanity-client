@@ -28,23 +28,18 @@ pub enum ConfigCmds {
 
 #[derive(Parser, Debug)]
 pub struct QueryArgs {
-    /// The value of the API token to access Sanity
-    #[clap(short, long, required = false)]
-    pub token: Option<String>,
-
-    /// The name of the Sanity Dataset
-    #[clap(short = 'd', long, required = true)]
-    pub dataset: String,
-
     /// The optional GROQ query to execute. Either a query or the `-i` flag need to be passed
     #[clap(short = 'q', long, required = false)]
     pub query: Option<String>, 
-
     /// Determines whether sanrs will enter interactive mode. Interactive mode allows for continual
     /// execution of GROQ queries against the Sanity API, each time a GROQ query is entered, the
     /// results will be printed to the console
     #[clap(short = 'i', long, required = false, action = clap::ArgAction::SetTrue)]
     pub interactive: bool,
+
+    /// Determines the configured profile in the .sanityrc to use
+    #[clap(short = 'p', long, required = true)]
+    pub profile: String
 }
 
 #[derive(Parser, Debug)]

@@ -1,30 +1,30 @@
 #[cfg(feature = "sanrs")]
 use {
     crate::SanityClient,
-    toml::Value,
-    std::path::Path,
-    std::io::Write,
-    std::io::prelude::*,
-    std::fs::{File, OpenOptions},
-    std::fs::DirBuilder,
-    std::fs,
-    std::env,
     serde::{Deserialize, Serialize, Serializer},
-    std::collections::BTreeMap,
+    std::collections::{BTreeMap, HashMap},
+    std::env,
+    std::fs,
+    std::fs::DirBuilder,
+    std::fs::{File, OpenOptions},
+    std::io::prelude::*,
+    std::io::Write,
+    std::path::Path,
     toml,
+    toml::Value,
 };
 
-const DIR_NAME:&str = "sanity";
-const FILE_NAME:&str = ".sanityrc";
+const DIR_NAME: &str = "sanity";
+const FILE_NAME: &str = ".sanityrc";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Environment {
     pub api_token: String,
     pub dataset: String,
     pub project_id: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Config {
     pub env_name: String,
     pub env: Environment,
@@ -32,7 +32,7 @@ pub struct Config {
 
 impl Serialize for Config {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where 
+    where
         S: Serializer,
     {
         let mut map = BTreeMap::new();
@@ -40,7 +40,6 @@ impl Serialize for Config {
         map.serialize(serializer)
     }
 }
-
 
 /// Helper function that creates the TOML string that will be used to write to the config file
 ///
@@ -83,6 +82,9 @@ pub fn create_file(toml_string: &String) -> Result<(), Box<dyn std::error::Error
     Ok(())
 }
 
+/// Adds a new group to the .sanityrc file
+///
+/// * `toml_string`: The toml of the new group to create
 pub fn append_config(toml_string: &String) -> Result<(), Box<dyn std::error::Error>> {
     let home_dir = env::var("HOME")?;
     let dir_path = Path::new(&home_dir).join(DIR_NAME);
@@ -99,11 +101,44 @@ pub fn append_config(toml_string: &String) -> Result<(), Box<dyn std::error::Err
     Ok(())
 }
 
-pub fn read_config() -> Result<Config, Box<dyn std::error::Error>> {
+/// Reads the content of the .sanityrc file and returns the toml in the Config format
+// pub fn read_config() -> Result<Vec<Config>, Box<dyn std::error::Error>> {
+//     let home_dir = env::var("HOME")?;
+//     let file_path = Path::new(&home_dir).join(DIR_NAME).join(FILE_NAME);
+//     let file_contents = std::fs::read_to_string(file_path)?;
+//     let toml_data:Config = toml::from_str(&file_contents)?;
+//
+//     return Ok(toml_data)
+// }
+
+/// Fetches the
+//NOTE: this has been adjusted to return a vector of configs not just a single one
+pub fn read_config() -> Result<Vec<Config>, Box<dyn std::error::Error>> {
     let home_dir = env::var("HOME")?;
     let file_path = Path::new(&home_dir).join(DIR_NAME).join(FILE_NAME);
     let file_contents = std::fs::read_to_string(file_path)?;
-    let toml_data:Config = toml::from_str(&file_contents)?;
+    let raw_configs: HashMap<String, Environment> = toml::from_str(&file_contents)?;
+    let configs: Vec<Config> = raw_configs
+        .into_iter()
+        .map(|(env_name, env)| Config { env_name, env })
+        .collect();
+    Ok(configs)
+}
 
-    return Ok(toml_data)
+pub fn find_profile(group_name: String) -> Option<Config> {
+    let mut groups = read_config().ok()?;
+    let mut filtered = groups
+        .clone()
+        .into_iter()
+        .filter(|config| config.env_name == group_name)
+        .collect::<Vec<_>>();
+
+    if filtered.clone().len() == 1 {
+        Some(filtered.swap_remove(0))
+    } else if filtered.len() > 1 {
+        eprintln!("There are more than 1 groups with the name {}", group_name);
+        None
+    } else {
+        None
+    }
 }

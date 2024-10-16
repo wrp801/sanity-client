@@ -29,20 +29,23 @@ fn config_exists() -> bool {
 }
 
 /// Returns a SanityClient from the config file
-fn get_client() -> Result<SanityClient, Box<dyn std::error::Error>> {
-    let config = config::read_config()?;
-    let token = config.env.api_token;
-    let dataset = config.env.dataset;
-    let project = config.env.project_id;
+fn get_client(profile:String) -> Result<SanityClient, Box<dyn std::error::Error>> {
+    let config = config::find_profile(profile.clone());
+    if let Some(config) = config {
+        let token = config.env.api_token;
+        let dataset = config.env.dataset;
+        let project = config.env.project_id;
 
-    let client = SanityClient::new(token, dataset, project);
+        let client = SanityClient::new(token, dataset, project);
 
-    Ok(client)
+        Ok(client)
+    } else {
+        Err(format!("Errorr could not find the profile name {}", profile).into())
+    }
+
 }
 
 // TODO: fill out docs
-// FIX: Need to handle `config init` cases before initializing the client and parsing the other
-// args
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = cli::Cli::parse();
 
@@ -90,6 +93,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
                 let output_str = String::from_utf8_lossy(&output.stdout);
                 println!("{}", output_str)
             }
+            // TODO: Add the ability to launch different editors, not just vim
             cli::ConfigCmds::Edit => {
                 let home = env::var("HOME").expect("Home is not properly defined");
                 let file_path = Path::new(&home).join("sanity/.sanityrc");
@@ -109,7 +113,6 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
                 if retain {
                     /// wipe the contents of the file
-
                     todo!();
                 } else {
                     /// delete the .sanityrc file
@@ -130,14 +133,14 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
                 process::exit(1)
             }
             let interactive = args.interactive;
+            let profile = args.profile;
+            let client = get_client(profile)?;
             if interactive {
                 println!("Entering interactive query shell");
                 // spin up the query shell
-                let client = get_client()?;
                 let _ = query_shell::run_shell(&client).await;
             } else {
-                let dataset = args.dataset;
-                let query = args.query;
+                todo!();
             }
         }
         _ => {
