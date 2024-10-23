@@ -40,6 +40,7 @@ fn get_client(profile:String) -> Result<SanityClient, Box<dyn std::error::Error>
 
         Ok(client)
     } else {
+        eprintln!("Error: no profile with name {}",profile.clone());
         Err(format!("Errorr could not find the profile name {}", profile).into())
     }
 

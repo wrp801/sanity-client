@@ -34,7 +34,7 @@ pub struct QueryResult {
 // TODO: fill out docs
 pub struct SanityClient {
     token: String,
-    dataset: String,
+    pub dataset: String,
     project: String,
 }
 
